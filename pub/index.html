@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <script>
+        navigator.geolocation.getCurrentPosition(function (pos) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', '/scan/' + pos.coords.latitude + "," + pos.coords.longitude);
+            xhr.send();
+        });
+    </script>
+</body>
+</html>

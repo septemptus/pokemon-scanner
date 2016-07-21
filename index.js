@@ -49,7 +49,7 @@ function scan(position, range, spacing) {
     return scanPoints.length;
 }
 
-router.route('/scan/:pos').get(function (req, res) {
+router.route('/:pos').get(function (req, res) {
     var scanned;
 
     try {
@@ -61,7 +61,12 @@ router.route('/scan/:pos').get(function (req, res) {
     res.send('OK ' + scanned);
 });
 
-app.use('/', router);
+router.route('/').get(function (req, res) {
+    res.send()
+});
+
+app.use('/', express.static('pub'));
+app.use('/scan', router);
 app.listen(process.env.PORT || 80);
 
 module.exports = scan;
