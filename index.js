@@ -62,6 +62,6 @@ router.route('/scan/:pos').get(function (req, res) {
 });
 
 app.use('/', router);
-app.listen(proces.env.PORT || 80);
+app.listen(process.env.PORT || 80);
 
 module.exports = scan;
