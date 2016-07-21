@@ -8,7 +8,16 @@
     <script>
         navigator.geolocation.getCurrentPosition(function (pos) {
             var xhr = new XMLHttpRequest();
-            xhr.open('GET', '/scan/' + pos.coords.latitude + "," + pos.coords.longitude);
+
+            var range = window.location.search.match(/range=(.+)/);
+            var spacing = window.location.search.match(/spacing=(.+)/);
+
+            range = range && range[1];
+            spacing = spacing && spacing[1];
+
+            var query = '?range=' + range + '&spacing=' + spacing;
+
+            xhr.open('GET', '/scan/' + pos.coords.latitude + "," + pos.coords.longitude + query);
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4) {
                     document.body.innerHTML = xhr.response;
