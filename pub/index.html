@@ -9,6 +9,11 @@
         navigator.geolocation.getCurrentPosition(function (pos) {
             var xhr = new XMLHttpRequest();
             xhr.open('GET', '/scan/' + pos.coords.latitude + "," + pos.coords.longitude);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    document.body.innerHTML = xhr.response;
+                }
+            };
             xhr.send();
         });
     </script>
