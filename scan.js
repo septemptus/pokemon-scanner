@@ -1,4 +1,7 @@
+var express = require('express');
 var request = require('request');
+var app = express();
+var router = express.Router();
 
 var ONE_KM_IN_DEG_LAT = 1 / 110.574;
 var SPACING_KM = 0.5;
@@ -42,6 +45,23 @@ function scan(position, range, spacing) {
     scanPoints.forEach(function (scanPoint) {
         request.get('https://pokevision.com/map/scan/' + scanPoint);
     });
+
+    return scanPoints.length;
 }
+
+router.route('/scan/:pos').get(function (req, res) {
+    var scanned;
+
+    try {
+        scanned = scan(req.params.pos, Number(req.query.range), Number(req.query.spacing));
+    } catch (e) {
+        res.send('NOK' + e);
+        return;
+    }
+    res.send('OK ' + scanned);
+});
+
+app.use('/', router);
+app.listen(80);
 
 module.exports = scan;
