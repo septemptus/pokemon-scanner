@@ -9,13 +9,14 @@
         navigator.geolocation.getCurrentPosition(function (pos) {
             var xhr = new XMLHttpRequest();
 
-            var range = window.location.search.match(/range=(.+)/);
-            var spacing = window.location.search.match(/spacing=(.+)/);
+            var range = window.location.search.match(/range=(\d+(?:\.\d+)?)/);
+            var spacing = window.location.search.match(/spacing=(\d+(?:\.\d+)?)/);
 
             range = range && range[1];
             spacing = spacing && spacing[1];
 
             var query = '?range=' + range + '&spacing=' + spacing;
+            console.log(range, spacing, query);
 
             xhr.open('GET', '/scan/' + pos.coords.latitude + "," + pos.coords.longitude + query);
             xhr.onreadystatechange = function () {
