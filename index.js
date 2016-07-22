@@ -1,5 +1,10 @@
 var express = require('express');
+var phantomjs = require('phantomjs');
+var path = require('path');
+var fs = require('fs');
 var request = require('request');
+var childProcess = require('child_process');
+var q = require('q');
 var app = express();
 var router = express.Router();
 
@@ -38,35 +43,53 @@ function getScanPoints(currentPosition, range, spacing) {
     return scanPoints;
 }
 
+function send(urls) {
+    var deferred = q.defer();
+
+    fs.writeFile(path.join(__dirname, 'urls.json'), JSON.stringify(urls), function (err) {
+        if (err) {
+            return deferred.reject(err);
+        }
+
+        childProcess.execFile(phantomjs.path, [
+            path.join(__dirname, 'p.js'),
+            path.join(__dirname, 'urls.json')
+        ], function (err, stdout, stderr) {
+            if (!err) {
+                console.log('processed');
+                return deferred.resolve();
+            }
+            console.log(err, stderr);
+            deferred.reject();
+        });        
+    });
+
+    return deferred.promise;
+}
+
 function scan(position, range, spacing) {
     var scanPoints = getScanPoints(position, range, spacing);
 
     console.log('Requesting ' + scanPoints.length + ' points');
-    scanPoints.forEach(function (scanPoint) {
-        request.get('https://pokevision.com/map/scan/' + scanPoint);
-    });
-
-    return scanPoints.length;
+    return send(scanPoints.map(function (scanPoint) {
+        return 'https://pokevision.com/map/scan/' + scanPoint;
+    }));
 }
 
 router.route('/:pos').get(function (req, res) {
-    var scanned;
-
     try {
-        scanned = scan(req.params.pos, Number(req.query.range), Number(req.query.spacing));
+        scan(req.params.pos, Number(req.query.range), Number(req.query.spacing))
+            .then(function () {
+                res.send('OK');
+            })
+            .fail(function () {
+                res.send('NOK');
+            });
     } catch (e) {
         res.send('NOK' + e);
-        return;
     }
-    res.send('OK ' + scanned);
-});
-
-router.route('/').get(function (req, res) {
-    res.send()
 });
 
 app.use('/', express.static('pub'));
 app.use('/scan', router);
 app.listen(process.env.PORT || 80);
-
-module.exports = scan;
