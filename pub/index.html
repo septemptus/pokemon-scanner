@@ -2,28 +2,105 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title></title>
+    <title>Pokehacker</title>
+    <style>
+        .container {
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+        }
+
+        .rotate {
+            cursor: not-allowed;
+            display: inline-block;
+            animation-name: rotate;
+            animation-duration: 2s;
+            animation-iteration-count: infinite;
+            animation-timing-function: linear;
+        }
+
+        @keyframes rotate {
+            from {transform: rotate(0deg);}
+            to {transform: rotate(360deg);}
+        }
+
+        body {
+            transition: all 0.5s;
+        }
+
+        body.green {
+            background-color: green;;
+        }
+
+        body.red {
+            background-color: green;;
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <img src="Pokeball.PNG">
+    </div>
+    <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha256-cCueBR6CsyA4/9szpPfrX3s49M9vUU5BgtiJj06wt/s=" crossorigin="anonymous"></script>
     <script>
-        navigator.geolocation.getCurrentPosition(function (pos) {
-            var xhr = new XMLHttpRequest();
+        $(document).ready(function () {
+            var POLLING_INTERVAL = 2000;
+            var SWITCH_OFFSET = 500;
+            var $pokeball = $('img');
+            var $body = $('body');
 
-            var range = window.location.search.match(/range=(\d+(?:\.\d+)?)/);
-            var spacing = window.location.search.match(/spacing=(\d+(?:\.\d+)?)/);
+            function scan() {
+                if (!$pokeball.hasClass('rotate')) {
+                    navigator.geolocation.getCurrentPosition(function (pos) {
+                        var range = window.location.search.match(/range=(\d+(?:\.\d+)?)/);
+                        var spacing = window.location.search.match(/spacing=(\d+(?:\.\d+)?)/);
 
-            range = range && range[1];
-            spacing = spacing && spacing[1];
+                        range = range && range[1];
+                        spacing = spacing && spacing[1];
 
-            var query = '?range=' + range + '&spacing=' + spacing;
+                        var query = '?range=' + range + '&spacing=' + spacing;
 
-            xhr.open('GET', '/scan/' + pos.coords.latitude + "," + pos.coords.longitude + query);
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4) {
-                    document.body.innerHTML = xhr.response;
+                        $.get('/api/scan/' + pos.coords.latitude + "," + pos.coords.longitude + query)
+                                .then(function (uuid) {
+                                    $pokeball.addClass('rotate');
+                                    startQuery(uuid);
+                                });
+                    });
                 }
-            };
-            xhr.send();
+            }
+
+            function startQuery(uuid) {
+                setTimeout(function () {
+                    $.get('/api/query/' + uuid)
+                            .then(function (status) {
+                                if (status === 'pending') {
+                                    return startQuery(uuid);
+                                }
+
+                                $pokeball.removeClass('rotate');
+
+                                if (status === 'success') {
+                                    $body.addClass('green');
+                                    setTimeout(function () {
+                                        $body.removeClass('green');
+                                    }, SWITCH_OFFSET);
+
+                                    return;
+                                }
+
+                                if (status === 'failure') {
+                                    $body.addClass('red');
+                                    setTimeout(function () {
+                                        $body.removeClass('red');
+                                    }, SWITCH_OFFSET);
+                                }
+                            });
+                }, POLLING_INTERVAL);
+            }
+
+            $pokeball.click(scan);
         });
     </script>
 </body>

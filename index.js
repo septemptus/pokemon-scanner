@@ -2,6 +2,7 @@ var express = require('express');
 var phantomjs = require('phantomjs');
 var path = require('path');
 var fs = require('fs');
+var uuid = require('uuid');
 var request = require('request');
 var childProcess = require('child_process');
 var q = require('q');
@@ -11,6 +12,8 @@ var router = express.Router();
 var ONE_KM_IN_DEG_LAT = 1 / 110.574;
 var SPACING_KM = 0.5;
 var RANGE_KM = 5;
+
+var requests = {};
 
 function getOneKmInDegLong(lat) {
     return 1 / (111.320 * Math.cos(lat * Math.PI / 180));
@@ -76,20 +79,36 @@ function scan(position, range, spacing) {
     }));
 }
 
-router.route('/:pos').get(function (req, res) {
+router.route('/scan/:pos').get(function (req, res) {
     try {
+        var reqUuid = uuid.v4();
+
+        requests[reqUuid] = 'pending';
+
         scan(req.params.pos, Number(req.query.range), Number(req.query.spacing))
             .then(function () {
-                res.send('OK');
+                requests[reqUuid] = 'success';
             })
             .fail(function () {
-                res.send('NOK');
+                requests[reqUuid] = 'failure';
             });
+
+        res.status(200).send(reqUuid);
     } catch (e) {
-        res.send('NOK' + e);
+        res.status(500).send('NOK' + e);
+    }
+});
+
+router.route('/query/:uuid').get(function (req, res) {
+    var uuid = req.params.uuid;
+
+    res.status(200).send(requests[uuid]);
+
+    if (requests[uuid] === 'success') {
+        delete requests[uuid];
     }
 });
 
 app.use('/', express.static('pub'));
-app.use('/scan', router);
+app.use('/api', router);
 app.listen(process.env.PORT || 80);
