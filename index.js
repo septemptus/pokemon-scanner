@@ -76,7 +76,8 @@ function scan(position, range, spacing) {
     console.log('Requesting ' + scanPoints.length + ' points');
 
     if (scanPoints.length > 3000) {
-        return q.reject('Too many points, temporary precaution');
+        console.log('Too many points, temporary precaution');
+        return q.reject();
     }
 
     return send(scanPoints.map(function (scanPoint) {
