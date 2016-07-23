@@ -2,29 +2,78 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title></title>
+    <title>Pokehacker</title>
+    <style>
+        .container {
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .rotate {
+            display: inline-block;
+            -webkit-animation-name: rotate;
+            -webkit-animation-duration: 2s;
+            -webkit-animation-iteration-count: infinite;
+            -webkit-animation-timing-function: linear;
+            -moz-animation-name: rotate;
+            -moz-animation-duration: 2s;
+            -moz-animation-iteration-count: infinite;
+            -moz-animation-timing-function: linear;
+            -o-animation-name: rotate;
+            -o-animation-duration: 2s;
+            -o-animation-iteration-count: infinite;
+            -o-animation-timing-function: linear;
+            animation-name: rotate;
+            animation-duration: 2s;
+            animation-iteration-count: infinite;
+            animation-timing-function: linear;
+        }
+        @-webkit-keyframes rotate {
+            from {-webkit-transform: rotate(0deg);}
+            to {-webkit-transform: rotate(360deg);}
+        }
+
+        @-moz-keyframes rotate {
+            from {-moz-transform: rotate(0deg);}
+            to {-moz-transform: rotate(360deg);}
+        }
+
+        @-o-keyframes rotate {
+            from {-moz-transform: rotate(0deg);}
+            to {-moz-transform: rotate(360deg);}
+        }
+
+        @keyframes rotate {
+            from {transform: rotate(0deg);}
+            to {transform: rotate(360deg);}
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <img class="rotate" src="Pokeball.PNG">
+    </div>
     <script>
-        navigator.geolocation.getCurrentPosition(function (pos) {
-            var xhr = new XMLHttpRequest();
-
-            var range = window.location.search.match(/range=(\d+(?:\.\d+)?)/);
-            var spacing = window.location.search.match(/spacing=(\d+(?:\.\d+)?)/);
-
-            range = range && range[1];
-            spacing = spacing && spacing[1];
-
-            var query = '?range=' + range + '&spacing=' + spacing;
-
-            xhr.open('GET', '/scan/' + pos.coords.latitude + "," + pos.coords.longitude + query);
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4) {
-                    document.body.innerHTML = xhr.response;
-                }
-            };
-            xhr.send();
-        });
+//        navigator.geolocation.getCurrentPosition(function (pos) {
+//            var xhr = new XMLHttpRequest();
+//
+//            var range = window.location.search.match(/range=(\d+(?:\.\d+)?)/);
+//            var spacing = window.location.search.match(/spacing=(\d+(?:\.\d+)?)/);
+//
+//            range = range && range[1];
+//            spacing = spacing && spacing[1];
+//
+//            var query = '?range=' + range + '&spacing=' + spacing;
+//
+//            xhr.open('GET', '/scan/' + pos.coords.latitude + "," + pos.coords.longitude + query);
+//            xhr.onreadystatechange = function () {
+//                if (xhr.readyState === 4) {
+//                    document.body.innerHTML = xhr.response;
+//                }
+//            };
+//            xhr.send();
+//        });
     </script>
 </body>
 </html>
