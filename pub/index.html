@@ -90,7 +90,7 @@
                                     return;
                                 }
 
-                                if (status === 'failure') {
+                                if (!status || status === 'failure') {
                                     $body.addClass('red');
                                     setTimeout(function () {
                                         $body.removeClass('red');
