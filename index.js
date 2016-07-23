@@ -74,6 +74,11 @@ function scan(position, range, spacing) {
     var scanPoints = getScanPoints(position, range, spacing);
 
     console.log('Requesting ' + scanPoints.length + ' points');
+
+    if (scanPoints.length > 3000) {
+        return q.reject('Too many points, temporary precaution');
+    }
+
     return send(scanPoints.map(function (scanPoint) {
         return 'https://pokevision.com/map/scan/' + scanPoint;
     }));
