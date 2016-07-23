@@ -96,6 +96,9 @@
                                         $body.removeClass('red');
                                     }, SWITCH_OFFSET);
                                 }
+                            })
+                            .fail(function () {
+                                startQuery(uuid);
                             });
                 }, POLLING_INTERVAL);
             }
